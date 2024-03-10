@@ -1,32 +1,36 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { cpus } from 'os';
-// import cluster from "cluster"
-
-// import * as _cluster from 'cluster';
-// const cluster = _cluster as unknown as _cluster.Cluster;
-
-import * as cluster from 'cluster';
-const thisCluster = cluster as any as cluster.Cluster;
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { ConfigService } from "@nestjs/config";
+const cors = require('cors');
+import * as process from 'process';
+import { INestApplication } from "@nestjs/common";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  const app : INestApplication<any> = await NestFactory.create(AppModule);
+
+  // set dynamic variables
+  const configService = app.get(ConfigService);
+  const env = process.env.NODE_ENV
+  const host = configService.get<string>(`${env}_HOST`);
+  const port = configService.get<number>(`${env}_PORT`);
+
+
+  const swaggerPath = 'swagger';
+  const config = new DocumentBuilder()
+      .setTitle('test_nodejs_brandsdistribution')
+      .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup(swaggerPath, app, document);
+
+  app.use(cors());
+  const server = await app.listen(port, host);
+  const address = server.address();
+
+  console.log(`Adapter in uso: ${app.getHttpAdapter().constructor.name}`);
+  console.log(`BACKEND => http://${address["address"]}:${address["port"]}`);
+  console.log(`SWAGGER => http://${address["address"]}:${address["port"]}/${swaggerPath}`);
+  console.log(`GRAPHQL => http://${address["address"]}:${address["port"]}/graphql`);
+
 }
-
-//CLUSTER_MODULE: x non avviare tutti sulla stessa porta (https://nodejs.org/api/cluster.html)
-if (thisCluster.isMaster) {
-  const cpuCount = cpus().length;
-
-  for (let i = 0; i < cpuCount; i++) {
-    console.log('aperto un nuovo fork');
-    thisCluster.fork();
-  }
-
-  thisCluster.on('exit', (worker) => {
-    console.log(`Worker ${worker.id} è morto`);
-    thisCluster.fork();
-  });
-} else {
-  bootstrap();
-}
+bootstrap();
