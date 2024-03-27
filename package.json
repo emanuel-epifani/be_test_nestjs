@@ -31,8 +31,10 @@
     "apollo-server-express": "^3.13.0",
     "graphql": "^16.8.1",
     "graphql-tools": "^9.0.1",
+    "jimp": "^0.22.12",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "sharp": "^0.33.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

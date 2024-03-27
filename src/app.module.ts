@@ -1,15 +1,13 @@
 import {Global, Module} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { WorkerThreadsModule } from './multi-thread/worker-threads/worker-threads.module';
-import { GraphQlCodeFirstModule } from './graphql_nest/graph-ql-code-first/graph-ql-code-first.module';
-import {WithoutMultiThreadsController} from "./multi-thread/without-multi-threads/without-multi-threads.controller";
-import {ClusterModuleModule} from "./multi-thread/cluster-module/cluster-module.module";
-import {WithoutMultiThreadsModule} from "./multi-thread/without-multi-threads/without-multi-threads.module";
+import { WorkerThreadsModule } from './worker-threads/worker-threads.module';
+
 import {ConfigModule} from "@nestjs/config";
 import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
 import {GraphQLModule} from "@nestjs/graphql";
 import { join } from 'path';
+import { UserModule } from "./user/user.module";
 
 @Global()
 @Module({
@@ -26,7 +24,7 @@ import { join } from 'path';
       envFilePath: `.env`,
       isGlobal: true,
     }),
-      WithoutMultiThreadsModule, WorkerThreadsModule, ClusterModuleModule ,GraphQlCodeFirstModule],
+      WorkerThreadsModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
